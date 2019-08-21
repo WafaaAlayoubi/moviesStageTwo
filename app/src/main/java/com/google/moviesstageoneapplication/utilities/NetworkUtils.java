@@ -2,6 +2,8 @@ package com.google.moviesstageoneapplication.utilities;
 
 import android.net.Uri;
 
+import com.google.moviesstageoneapplication.BuildConfig;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -13,7 +15,7 @@ public class NetworkUtils {
 
     final static String MOVIEDB_BASE_URL = "http://api.themoviedb.org/3/movie";
 
-    final static String API_KEY = "PUT YOUR API KEY HERE";
+    final static String API_KEY = BuildConfig.THE_GUARDIAN_API_KEY;
 
 
     public static URL buildUrl(String query,boolean isImg) {

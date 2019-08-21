@@ -1,23 +1,25 @@
 package com.google.moviesstageoneapplication;
 
-import androidx.annotation.NonNull;
+
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.view.MotionEvent;
+import android.util.DisplayMetrics;
+import android.view.Display;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.moviesstageoneapplication.model.Movie;
 import com.google.moviesstageoneapplication.utilities.MyDividerItemDecoration;
@@ -52,39 +54,54 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mErrorMessageDisplay =  findViewById(R.id.tv_error_message_display);
-        mLoadingIndicator = findViewById(R.id.pb_loading_indicator);
-        mSpinner = findViewById(R.id.spinner);
-        mSpinner.setOnItemSelectedListener(this);
+        boolean check = checkConnection();
 
-        ArrayAdapter<CharSequence> adapter1 = ArrayAdapter.createFromResource(this,R.array.sortType, android.R.layout.simple_spinner_item);
+            mErrorMessageDisplay = findViewById(R.id.tv_error_message_display);
+            mLoadingIndicator = findViewById(R.id.pb_loading_indicator);
+            recyclerView = findViewById(R.id.rv_movies);
+            mSpinner = findViewById(R.id.spinner);
+            mSpinner.setOnItemSelectedListener(this);
 
-        adapter1.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        mSpinner.setAdapter(adapter1);
+            ArrayAdapter<CharSequence> adapter1 = ArrayAdapter.createFromResource(this, R.array.sortType, android.R.layout.simple_spinner_item);
 
+            adapter1.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            mSpinner.setAdapter(adapter1);
 
-        recyclerView = findViewById(R.id.rv_movies);
+            setTitle("popular movies");
 
-        setTitle("popular movies");
+        if(check) {
 
-        makeMovieSearchQuery("popular");
+            makeMovieSearchQuery("popular");
 
-        recyclerView.addOnItemTouchListener(new RecyclerTouchListener(this,
-                recyclerView, new RecyclerTouchListener.ClickListener() {
-            @Override
-            public void onClick(View view, final int position) {
+            recyclerView.addOnItemTouchListener(new RecyclerTouchListener(this,
+                    recyclerView, new RecyclerTouchListener.ClickListener() {
+                @Override
+                public void onClick(View view, final int position) {
 
-                Intent intent = new Intent(getBaseContext(), DetailsActivity.class);
-                intent.putExtra(DetailsActivity.EXTRA_POSITION, position);
-                startActivity(intent);
+                    Intent intent = new Intent(getBaseContext(), DetailsActivity.class);
+                    intent.putExtra(DetailsActivity.EXTRA_POSITION, position);
+                    startActivity(intent);
 
-            }
+                }
 
-            @Override
-            public void onLongClick(View view, int position) {
+                @Override
+                public void onLongClick(View view, int position) {
 
-            }
-        }));
+                }
+            }));
+        }else {
+            showErrorMessage();
+        }
+    }
+
+    private boolean checkConnection(){
+        ConnectivityManager cm =
+                (ConnectivityManager)this.getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        boolean isConnected = activeNetwork != null &&
+                activeNetwork.isConnectedOrConnecting();
+       return isConnected;
     }
 
 
@@ -189,7 +206,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             mLoadingIndicator.setVisibility(View.GONE);
             if (movieSearchResults != null && !movieSearchResults.equals("")) {
 
-                // showJsonDataView();
                 jasonMovieText = movieSearchResults;
                 JSONObject reader = null;
                 JSONArray results = null;
@@ -201,10 +217,12 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                     e.printStackTrace();
                 }
 
+                int posterWidth = 500;
+
                 mAdapter = new MoviesAdapter(MainActivity.this, movieList);
                 RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getApplicationContext());
                 recyclerView.setLayoutManager(mLayoutManager);
-                GridLayoutManager gridLayoutManager = new GridLayoutManager(MainActivity.this.getApplicationContext(), 2);
+                GridLayoutManager gridLayoutManager = new GridLayoutManager(MainActivity.this.getApplicationContext(), calculateBestSpanCount(posterWidth));
                 recyclerView.setLayoutManager(gridLayoutManager);
                 recyclerView.addItemDecoration(new MyDividerItemDecoration(MainActivity.this, LinearLayoutManager.VERTICAL, 16));
                 recyclerView.setAdapter(mAdapter);
@@ -215,6 +233,13 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 showErrorMessage();
             }
         }
+    }
+    private int calculateBestSpanCount(int posterWidth) {
+        Display display = getWindowManager().getDefaultDisplay();
+        DisplayMetrics outMetrics = new DisplayMetrics();
+        display.getMetrics(outMetrics);
+        float screenWidth = outMetrics.widthPixels;
+        return Math.round(screenWidth / posterWidth);
     }
 
 
