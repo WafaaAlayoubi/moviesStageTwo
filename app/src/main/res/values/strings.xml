@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">Movies</string>
+
+    <string name="error">Error in connection</string>
+    <string name="title_activity_details">DetailsActivity</string>
+
+    <string-array name="sortType">
+        <item>popular</item>
+        <item>top_rated</item>
+    </string-array>
+</resources>
