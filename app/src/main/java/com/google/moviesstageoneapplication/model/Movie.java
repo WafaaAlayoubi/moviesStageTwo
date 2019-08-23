@@ -2,10 +2,20 @@ package com.google.moviesstageoneapplication.model;
 
 public class Movie {
 
+    private String id;
     private String Title;
     private String posterPath;
     private String overview;
     private String releaseDate;
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
     private String voterAverage;
 
     public String getTitle() {

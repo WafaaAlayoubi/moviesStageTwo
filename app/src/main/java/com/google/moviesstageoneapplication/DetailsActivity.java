@@ -1,17 +1,15 @@
 package com.google.moviesstageoneapplication;
 
 import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.moviesstageoneapplication.model.Movie;
-import com.google.moviesstageoneapplication.view.MoviesAdapter;
 import com.squareup.picasso.Picasso;
+
 
 public class DetailsActivity extends AppCompatActivity {
 
@@ -24,10 +22,17 @@ public class DetailsActivity extends AppCompatActivity {
     private TextView userRating;
     private TextView overview;
 
+
+
+    int position ;
+
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_details);
+
 
         posterImg = findViewById(R.id.poster_img);
 
@@ -35,10 +40,8 @@ public class DetailsActivity extends AppCompatActivity {
         releaseDate = findViewById(R.id.release_date);
         userRating = findViewById(R.id.user_rating);
         overview = findViewById(R.id.overview);
-
         Intent intent = getIntent();
-
-        int position = intent.getIntExtra(EXTRA_POSITION,-1);
+        position = intent.getIntExtra(EXTRA_POSITION,-1);
 
         if(position == -1){
             return;
@@ -56,5 +59,23 @@ public class DetailsActivity extends AppCompatActivity {
                 .error(R.drawable.ic_launcher_background)
                 .into(posterImg);
 
+
     }
+
+
+    public void trailer(View v)
+    {
+        Intent intent = new Intent(getBaseContext(), VideosActivity.class);
+        intent.putExtra(DetailsActivity.EXTRA_POSITION, position);
+        startActivity(intent);
+    }
+
+    public void reviews(View v)
+    {
+        Intent intent = new Intent(getBaseContext(), ReviewsActivity.class);
+        intent.putExtra(DetailsActivity.EXTRA_POSITION, position);
+        startActivity(intent);
+    }
+
+
 }

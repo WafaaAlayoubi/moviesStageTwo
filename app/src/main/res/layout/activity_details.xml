@@ -1,17 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<ScrollView
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/scrollView"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
-
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
     tools:context="com.google.moviesstageoneapplication.DetailsActivity">
+
+
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/scrollView"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    >
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -71,7 +78,7 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:orientation="vertical"
         android:paddingTop="10dp"
         android:paddingLeft="@dimen/padding"
@@ -90,11 +97,36 @@
             android:textSize="18sp"
             />
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            >
+
+            <Button
+                android:onClick="trailer"
+                android:id="@+id/trailer_btn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Show Trailer"/>
+
+            <Button
+                android:id="@+id/reviews_btn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Show Reviews"
+                android:onClick="reviews"/>
+
+        </LinearLayout>
+
     </LinearLayout>
-
-
 
 
 </LinearLayout>
 
 </ScrollView>
+
+
+
+</LinearLayout>

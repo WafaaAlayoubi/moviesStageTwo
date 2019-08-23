@@ -3,6 +3,7 @@ package com.google.moviesstageoneapplication.utilities;
 import android.net.Uri;
 
 import com.google.moviesstageoneapplication.BuildConfig;
+import com.google.moviesstageoneapplication.R;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -18,13 +19,33 @@ public class NetworkUtils {
     final static String API_KEY = BuildConfig.THE_GUARDIAN_API_KEY;
 
 
-    public static URL buildUrl(String query,boolean isImg) {
+    public static URL buildUrl(String query) {
+
+        URL url = null;
+
+
+            Uri builtUri = Uri.parse(MOVIEDB_BASE_URL).buildUpon()
+                    .appendPath(query)
+                    .appendQueryParameter(String.valueOf(R.string.api_key), API_KEY)
+                    .build();
+            try {
+                url = new URL(builtUri.toString());
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+
+
+        }
+
+
+        return url;
+    }
+
+    public static URL buildUrlImg(String query) {
 
         String IMAGE_BASE_URL = "http://image.tmdb.org/t/p/w342/"+query;
 
         URL url = null;
 
-        if(isImg) {
             Uri builtUri = Uri.parse(IMAGE_BASE_URL).buildUpon()
                     .build();
             try {
@@ -32,20 +53,28 @@ public class NetworkUtils {
             } catch (MalformedURLException e) {
                 e.printStackTrace();
             }
-        }else {
 
-            Uri builtUri = Uri.parse(MOVIEDB_BASE_URL).buildUpon()
-                    .appendPath(query)
-                    .appendQueryParameter("api_key", API_KEY)
-                    .build();
-            try {
-                url = new URL(builtUri.toString());
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
-            }
+
+        return url;
+    }
+
+    public static URL buildUrlVideosAndReviews(String query,String id) {
+
+        URL url = null;
+
+
+        Uri builtUri = Uri.parse(MOVIEDB_BASE_URL).buildUpon()
+                .appendPath(id)
+                .appendPath(query)
+                .appendQueryParameter("api_key", API_KEY)
+                .build();
+        try {
+            url = new URL(builtUri.toString());
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+
 
         }
-
 
         return url;
     }

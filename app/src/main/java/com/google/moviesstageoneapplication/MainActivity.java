@@ -125,12 +125,14 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
                 JSONObject resultsReader = null;
                 String title = null;
+                String id = null;
                 String image = null;
                 String releaseDate = null;
                 String voteAverage = null;
                 String overview = null;
                 resultsReader= results.optJSONObject(i);
                 title = resultsReader.optString("title", "fall_back_string");
+                id = resultsReader.optString("id", "fall_back_string");
                 image = resultsReader.optString("poster_path", "fall_back_string");
                 releaseDate = resultsReader.optString("release_date", "fall_back_string");
                 voteAverage = resultsReader.optString("vote_average", "fall_back_string");
@@ -140,6 +142,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
                 Movie entry1=new Movie();
                 entry1.setTitle(title);
+                entry1.setId(id);
                 entry1.setPosterPath(imgPath);
                 entry1.setReleaseDate(releaseDate);
                 entry1.setVoterAverage(voteAverage);
@@ -156,13 +159,13 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         showRecycleView();
 
         //this is the url
-        URL movieSearchUrl = NetworkUtils.buildUrl(movieQuery,false);
+        URL movieSearchUrl = NetworkUtils.buildUrl(movieQuery);
         new MovieQueryTask().execute(movieSearchUrl);
     }
     private String makeMovieImageSearchQuery(String imgId) {
 
         //this is the url
-        URL movieSearchUrl = NetworkUtils.buildUrl(imgId,true);
+        URL movieSearchUrl = NetworkUtils.buildUrlImg(imgId);
         return movieSearchUrl.toString();
     }
 
