@@ -39,6 +39,8 @@ public class VideosActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_videos);
 
+        setTitle("Trailer");
+
         Intent intent = getIntent();
         position = intent.getIntExtra(EXTRA_POSITION,-1);
 

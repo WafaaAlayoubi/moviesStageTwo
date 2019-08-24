@@ -4,6 +4,7 @@ package com.google.moviesstageoneapplication;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -26,6 +27,7 @@ import android.widget.Toast;
 
 import com.google.moviesstageoneapplication.database.AppDatabase;
 import com.google.moviesstageoneapplication.model.AppExecutor;
+import com.google.moviesstageoneapplication.model.MainViewModel;
 import com.google.moviesstageoneapplication.model.Movie;
 import com.google.moviesstageoneapplication.model.favorites;
 import com.google.moviesstageoneapplication.utilities.MyDividerItemDecoration;
@@ -209,8 +211,9 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     private void setMovieListFav (){
 
-        final LiveData<List<favorites>> favoritesList2 = mDb.favoritesDao().loadAllFavorites();
-        favoritesList2.observe(MainActivity.this, new Observer<List<favorites>>() {
+       // final LiveData<List<favorites>> favoritesList2 = mDb.favoritesDao().loadAllFavorites();
+        MainViewModel viewModel = ViewModelProviders.of(this).get(MainViewModel.class);
+        viewModel.getMovies().observe(MainActivity.this, new Observer<List<favorites>>() {
             @Override
             public void onChanged(List<favorites> favorites) {
                 movieList.clear();

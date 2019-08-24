@@ -13,8 +13,10 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
-        <activity android:name=".ReviewsActivity"></activity>
-        <activity android:name=".VideosActivity" />
+        <activity android:name=".ReviewsActivity"
+            android:parentActivityName=".MainActivity"></activity>
+        <activity android:name=".VideosActivity"
+            android:parentActivityName=".MainActivity"/>
         <activity
             android:name=".DetailsActivity"
             android:parentActivityName=".MainActivity" />

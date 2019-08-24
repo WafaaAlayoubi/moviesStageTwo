@@ -29,13 +29,13 @@
         android:weightSum="3">
         <ImageView
             android:id="@+id/poster_img"
-            android:layout_width="0dp"
+            android:layout_width="@dimen/zero"
             android:layout_height="wrap_content"
             android:src="@mipmap/ic_launcher"
             android:layout_weight="1"
             android:contentDescription="TODO" />
         <LinearLayout
-            android:layout_width="0dp"
+            android:layout_width="@dimen/zero"
             android:layout_height="wrap_content"
             android:layout_weight="2"
             android:orientation="vertical"
@@ -45,7 +45,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Title"
-                android:textSize="18sp"
+                android:textSize="@dimen/textSize"
                 android:textColor="@color/black"/>
             <TextView
                 android:id="@+id/title"
@@ -54,7 +54,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="18sp"
+                android:textSize="@dimen/textSize"
                 android:textColor="@color/black"
                 android:text="Release date"/>
             <TextView
@@ -64,7 +64,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="18sp"
+                android:textSize="@dimen/textSize"
                 android:textColor="@color/black"
                 android:text="User rating"/>
             <TextView
@@ -87,14 +87,14 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="18sp"
+            android:textSize="@dimen/textSize"
             android:textColor="@color/black"
             android:text="Overview"/>
         <TextView
             android:id="@+id/overview"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="18sp"
+            android:textSize="@dimen/textSize"
             />
 
         <LinearLayout
@@ -102,28 +102,32 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center"
+            android:weightSum="3"
             >
 
             <Button
                 android:onClick="trailer"
                 android:id="@+id/trailer_btn"
-                android:layout_width="wrap_content"
+                android:layout_width="@dimen/zero"
                 android:layout_height="wrap_content"
+                android:layout_weight="1"
                 android:text="Show Trailer"/>
 
             <Button
                 android:id="@+id/reviews_btn"
-                android:layout_width="wrap_content"
+                android:layout_width="@dimen/zero"
+                android:layout_weight="1"
                 android:layout_height="wrap_content"
                 android:text="Show Reviews"
                 android:onClick="reviews"/>
             <ToggleButton
                 android:id="@+id/favorites_btn"
-                android:layout_width="0dp"
+                android:layout_width="@dimen/zero"
                 android:layout_height="match_parent"
-                android:layout_weight="50"
-                android:text="Add To Favorites"
+                android:layout_weight="1"
                 android:textStyle="bold"
+                android:textOff="@string/textOff"
+                android:textOn="@string/textOn"
                 />
         </LinearLayout>
 

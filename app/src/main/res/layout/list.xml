@@ -15,14 +15,14 @@
             android:layout_height="wrap_content"
             android:textStyle="bold"
             android:textAllCaps="true"
-            android:textSize="20sp"
+            android:textSize="@dimen/textSize"
             android:textColor="@color/black"
             />
         <TextView
             android:id="@+id/content_tv"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="18sp"
+            android:textSize="@dimen/textSize"
             android:paddingTop="10dp"/>
 
     </LinearLayout>

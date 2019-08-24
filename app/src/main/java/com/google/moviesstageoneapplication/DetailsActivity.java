@@ -50,6 +50,7 @@ public class DetailsActivity extends AppCompatActivity {
         mDb = AppDatabase.getInstance(getApplicationContext());
 
         favoriteBtn = findViewById(R.id.favorites_btn);
+
         favoriteBtn.setTextOn("Remove from favorite");
         favoriteBtn.setTextOff("Add to favorite");
 

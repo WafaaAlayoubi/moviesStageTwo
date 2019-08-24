@@ -44,7 +44,7 @@ public class ReviewsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_reviews);
 
-
+        setTitle("Reviews");
 
         Intent intent = getIntent();
         position = intent.getIntExtra(EXTRA_POSITION,-1);
@@ -52,9 +52,6 @@ public class ReviewsActivity extends AppCompatActivity {
         Movie movieObj = MainActivity.movieList.get(position);
 
         makeVideoSearchQuery("reviews",movieObj.getId());
-
-
-
     }
 
     private void showListReviews(){

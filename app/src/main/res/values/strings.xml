@@ -6,6 +6,8 @@
     <string name="author">author</string>
     <string name="MOVIEDB_BASE_URL">http://api.themoviedb.org/3/movie</string>
     <string name="title_activity_details">DetailsActivity</string>
+    <string name="textOff">Add to favorite</string>
+    <string name="textOn">Remove from favorite</string>
 
     <string-array name="sortType">
         <item>popular</item>
