@@ -2,6 +2,7 @@ package com.google.moviesstageoneapplication;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProviders;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -13,6 +14,7 @@ import android.widget.ToggleButton;
 
 import com.google.moviesstageoneapplication.database.AppDatabase;
 import com.google.moviesstageoneapplication.model.AppExecutor;
+import com.google.moviesstageoneapplication.model.MainViewModel;
 import com.google.moviesstageoneapplication.model.Movie;
 import com.google.moviesstageoneapplication.model.favorites;
 import com.squareup.picasso.Picasso;
@@ -56,7 +58,8 @@ public class DetailsActivity extends AppCompatActivity {
 
         movieObj= MainActivity.movieList.get(position);
 
-        MainActivity.favoritesList.observe(this, new Observer<List<favorites>>() {
+        MainViewModel viewModel = ViewModelProviders.of(this).get(MainViewModel.class);
+        viewModel.getMovies().observe(this, new Observer<List<favorites>>() {
             @Override
             public void onChanged(List<favorites> favorites) {
                 for (int i =0 ;i<favorites.size();i++){
@@ -69,9 +72,12 @@ public class DetailsActivity extends AppCompatActivity {
                     else
                         favoriteBtn.setChecked(false);
                 }
+
             }
 
         });
+
+
 
 
 
@@ -82,16 +88,18 @@ public class DetailsActivity extends AppCompatActivity {
                 final favorites favoritesEntry = new favorites(movieObj.getId(),movieObj.getTitle(),movieObj.getPosterPath(),movieObj.getOverview(),movieObj.getReleaseDate(),movieObj.getVoterAverage());
 
                 AppExecutor.getInstance ().diskIO ().execute (() -> mDb.favoritesDao ().insertFavorite(favoritesEntry));
+
                 finish();
+
             }
-            else if(!isChecked && buttonView.isPressed()){
+            else if(isChecked!=true && buttonView.isPressed()){
                 favoriteBtn.getTextOff();
                 AppExecutor.getInstance().diskIO().execute(new Runnable() {
                     @Override
                     public void run() {
                         mDb.favoritesDao().deleteFavorite(favObj);
                         finish();
-                    }
+                }
                 });
             }
         });

@@ -15,6 +15,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.util.DisplayMetrics;
 import android.view.Display;
 import android.view.View;
@@ -23,7 +24,6 @@ import android.widget.ArrayAdapter;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.moviesstageoneapplication.database.AppDatabase;
 import com.google.moviesstageoneapplication.model.AppExecutor;
@@ -49,6 +49,7 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
 
     private RecyclerView recyclerView;
+    private RecyclerView.LayoutManager mLayoutManager;
     public static List<Movie> movieList = new ArrayList<Movie>();
     private MoviesAdapter mAdapter;
     private String jasonMovieText;
@@ -58,10 +59,14 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     private Spinner mSpinner;
     private String selectedItem;
 
+    private boolean favFlag ;
+
     private AppDatabase mDb;
     public static LiveData<List<favorites>> favoritesList = null;
 
     private static final String LIFECYCLE_CALLBACKS = "callBacks";
+
+    private Parcelable mListState;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -101,7 +106,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         adapter1.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         mSpinner.setAdapter(adapter1);
 
-                   setTitle("popular movies");
+
 
         if (check) {
 
@@ -111,8 +116,11 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                     selectedItem = savedInstanceState.getString(LIFECYCLE_CALLBACKS);
                     makeMovieSearchQuery(selectedItem);
                 }
-            } else
-            makeMovieSearchQuery("popular");
+            } else{
+                setTitle("popular movies");
+                makeMovieSearchQuery("popular");
+            }
+
 
             recyclerView.addOnItemTouchListener(new RecyclerTouchListener(this,
                     recyclerView, new RecyclerTouchListener.ClickListener() {
@@ -135,15 +143,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         }
 
     }
-
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState (outState);
-        outState.putString(LIFECYCLE_CALLBACKS, selectedItem);
-
-    }
-
-
 
 
 
@@ -211,23 +210,28 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     private void setMovieListFav (){
 
-       // final LiveData<List<favorites>> favoritesList2 = mDb.favoritesDao().loadAllFavorites();
         MainViewModel viewModel = ViewModelProviders.of(this).get(MainViewModel.class);
         viewModel.getMovies().observe(MainActivity.this, new Observer<List<favorites>>() {
             @Override
             public void onChanged(List<favorites> favorites) {
-                movieList.clear();
-                for (int i =0 ;i <favorites.size();i++){
-                    Movie entry1=new Movie();
-                    entry1.setTitle(favorites.get(i).getTitle());
-                    entry1.setId(favorites.get(i).getMovieId());
-                    entry1.setPosterPath(favorites.get(i).getPosterPath());
-                    entry1.setReleaseDate(favorites.get(i).getReleaseDate());
-                    entry1.setVoterAverage(favorites.get(i).getVoterAverage());
-                    entry1.setOverview(favorites.get(i).getOverview());
-                    movieList.add(entry1);
+                if(favFlag) {
+                    movieList.clear();
+                    for (int i = 0; i < favorites.size(); i++) {
+                        Movie entry1 = new Movie();
+                        entry1.setTitle(favorites.get(i).getTitle());
+                        entry1.setId(favorites.get(i).getMovieId());
+                        entry1.setPosterPath(favorites.get(i).getPosterPath());
+                        entry1.setReleaseDate(favorites.get(i).getReleaseDate());
+                        entry1.setVoterAverage(favorites.get(i).getVoterAverage());
+                        entry1.setOverview(favorites.get(i).getOverview());
+                        movieList.add(entry1);
+                    }
+                    showRecycle();
+                    favFlag = false;
                 }
-                showRecycle();
+                else
+                    makeMovieSearchQuery(selectedItem);
+
 
             }
 
@@ -242,6 +246,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         showRecycleView();
 
         if(movieQuery.equals("favorites")){
+            favFlag = true;
             setMovieListFav();
         }else {
 
@@ -321,10 +326,12 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         int posterWidth = 500;
 
         mAdapter = new MoviesAdapter(MainActivity.this, movieList);
-        RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getApplicationContext());
+        mLayoutManager = new GridLayoutManager(this, 2);
+        if (mListState != null) {
+            mLayoutManager.onRestoreInstanceState(mListState);
+        }
+        recyclerView.getRecycledViewPool ().clear ();
         recyclerView.setLayoutManager(mLayoutManager);
-        GridLayoutManager gridLayoutManager = new GridLayoutManager(MainActivity.this.getApplicationContext(), calculateBestSpanCount(posterWidth));
-        recyclerView.setLayoutManager(gridLayoutManager);
         recyclerView.addItemDecoration(new MyDividerItemDecoration(MainActivity.this, LinearLayoutManager.VERTICAL, 16));
         recyclerView.setAdapter(mAdapter);
         showRecycleView();
@@ -338,10 +345,24 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
-        if(selectedItem != null){
-            makeMovieSearchQuery(selectedItem);
-        }
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState (outState);
+        outState.putString(LIFECYCLE_CALLBACKS, selectedItem);
+
+        mListState = mLayoutManager.onSaveInstanceState();
+        outState.putParcelable("LIST_STATE_KEY", mListState);
+
     }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle outState) {
+
+        selectedItem = outState.getString (LIFECYCLE_CALLBACKS);
+
+        if(outState != null)
+            mListState = outState.getParcelable("LIST_STATE_KEY");
+    }
+
+
+
 }
