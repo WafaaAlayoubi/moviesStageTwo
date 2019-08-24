@@ -117,7 +117,14 @@
                 android:layout_height="wrap_content"
                 android:text="Show Reviews"
                 android:onClick="reviews"/>
-
+            <ToggleButton
+                android:id="@+id/favorites_btn"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="50"
+                android:text="Add To Favorites"
+                android:textStyle="bold"
+                />
         </LinearLayout>
 
     </LinearLayout>

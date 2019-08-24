@@ -2,6 +2,8 @@ package com.google.moviesstageoneapplication;
 
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.Observer;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -20,8 +22,12 @@ import android.widget.ArrayAdapter;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.google.moviesstageoneapplication.database.AppDatabase;
+import com.google.moviesstageoneapplication.model.AppExecutor;
 import com.google.moviesstageoneapplication.model.Movie;
+import com.google.moviesstageoneapplication.model.favorites;
 import com.google.moviesstageoneapplication.utilities.MyDividerItemDecoration;
 import com.google.moviesstageoneapplication.utilities.NetworkUtils;
 import com.google.moviesstageoneapplication.utilities.RecyclerTouchListener;
@@ -48,29 +54,62 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     private TextView mErrorMessageDisplay;
     private ProgressBar mLoadingIndicator;
     private Spinner mSpinner;
+    private String selectedItem;
+
+    private AppDatabase mDb;
+    public static LiveData<List<favorites>> favoritesList = null;
+
+    private static final String LIFECYCLE_CALLBACKS = "callBacks";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+
+        mDb = AppDatabase.getInstance((getApplicationContext()));
+
+        AppExecutor.getInstance().diskIO().execute(new Runnable() {
+            @Override
+            public void run() {
+                favoritesList = mDb.favoritesDao().loadAllFavorites();
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+
+                    }
+
+                });
+
+            }
+        });
+
+
         boolean check = checkConnection();
 
-            mErrorMessageDisplay = findViewById(R.id.tv_error_message_display);
-            mLoadingIndicator = findViewById(R.id.pb_loading_indicator);
-            recyclerView = findViewById(R.id.rv_movies);
-            mSpinner = findViewById(R.id.spinner);
-            mSpinner.setOnItemSelectedListener(this);
 
-            ArrayAdapter<CharSequence> adapter1 = ArrayAdapter.createFromResource(this, R.array.sortType, android.R.layout.simple_spinner_item);
+        mErrorMessageDisplay = findViewById(R.id.tv_error_message_display);
+        mLoadingIndicator = findViewById(R.id.pb_loading_indicator);
+        recyclerView = findViewById(R.id.rv_movies);
+        mSpinner = findViewById(R.id.spinner);
+        mSpinner.setOnItemSelectedListener(this);
 
-            adapter1.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-            mSpinner.setAdapter(adapter1);
+        ArrayAdapter<CharSequence> adapter1 = ArrayAdapter.createFromResource(this, R.array.sortType, android.R.layout.simple_spinner_item);
 
-            setTitle("popular movies");
+        adapter1.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        mSpinner.setAdapter(adapter1);
 
-        if(check) {
+                   setTitle("popular movies");
 
+        if (check) {
+
+            if (savedInstanceState != null) {
+                if (savedInstanceState.containsKey(LIFECYCLE_CALLBACKS)) {
+
+                    selectedItem = savedInstanceState.getString(LIFECYCLE_CALLBACKS);
+                    makeMovieSearchQuery(selectedItem);
+                }
+            } else
             makeMovieSearchQuery("popular");
 
             recyclerView.addOnItemTouchListener(new RecyclerTouchListener(this,
@@ -89,10 +128,22 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
                 }
             }));
-        }else {
+        } else {
             showErrorMessage();
         }
+
     }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState (outState);
+        outState.putString(LIFECYCLE_CALLBACKS, selectedItem);
+
+    }
+
+
+
+
 
     private boolean checkConnection(){
         ConnectivityManager cm =
@@ -120,6 +171,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     private void getResults(JSONArray results)  {
 
         if(results.length() != 0) {
+
+            movieList.clear();
 
             for (int i = 0; i < results.length(); i++) {
 
@@ -154,13 +207,45 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     }
 
+    private void setMovieListFav (){
+
+        final LiveData<List<favorites>> favoritesList2 = mDb.favoritesDao().loadAllFavorites();
+        favoritesList2.observe(MainActivity.this, new Observer<List<favorites>>() {
+            @Override
+            public void onChanged(List<favorites> favorites) {
+                movieList.clear();
+                for (int i =0 ;i <favorites.size();i++){
+                    Movie entry1=new Movie();
+                    entry1.setTitle(favorites.get(i).getTitle());
+                    entry1.setId(favorites.get(i).getMovieId());
+                    entry1.setPosterPath(favorites.get(i).getPosterPath());
+                    entry1.setReleaseDate(favorites.get(i).getReleaseDate());
+                    entry1.setVoterAverage(favorites.get(i).getVoterAverage());
+                    entry1.setOverview(favorites.get(i).getOverview());
+                    movieList.add(entry1);
+                }
+                showRecycle();
+
+            }
+
+            });
+
+
+    }
+
     private void makeMovieSearchQuery(String movieQuery) {
+
 
         showRecycleView();
 
-        //this is the url
-        URL movieSearchUrl = NetworkUtils.buildUrl(movieQuery);
-        new MovieQueryTask().execute(movieSearchUrl);
+        if(movieQuery.equals("favorites")){
+            setMovieListFav();
+        }else {
+
+            //this is the url
+            URL movieSearchUrl = NetworkUtils.buildUrl(movieQuery);
+            new MovieQueryTask().execute(movieSearchUrl);
+        }
     }
     private String makeMovieImageSearchQuery(String imgId) {
 
@@ -171,10 +256,10 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     @Override
     public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-        String text = adapterView.getItemAtPosition(i).toString();
-        movieList.clear();
-        setTitle(text+" movies");
-        makeMovieSearchQuery(text);
+         selectedItem = adapterView.getItemAtPosition(i).toString();
+
+        setTitle(selectedItem+" movies");
+        makeMovieSearchQuery(selectedItem);
     }
 
     @Override
@@ -220,22 +305,26 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                     e.printStackTrace();
                 }
 
-                int posterWidth = 500;
+                showRecycle();
 
-                mAdapter = new MoviesAdapter(MainActivity.this, movieList);
-                RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getApplicationContext());
-                recyclerView.setLayoutManager(mLayoutManager);
-                GridLayoutManager gridLayoutManager = new GridLayoutManager(MainActivity.this.getApplicationContext(), calculateBestSpanCount(posterWidth));
-                recyclerView.setLayoutManager(gridLayoutManager);
-                recyclerView.addItemDecoration(new MyDividerItemDecoration(MainActivity.this, LinearLayoutManager.VERTICAL, 16));
-                recyclerView.setAdapter(mAdapter);
-                showRecycleView();
 
             } else {
 
                 showErrorMessage();
             }
         }
+    }
+    private void showRecycle (){
+        int posterWidth = 500;
+
+        mAdapter = new MoviesAdapter(MainActivity.this, movieList);
+        RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getApplicationContext());
+        recyclerView.setLayoutManager(mLayoutManager);
+        GridLayoutManager gridLayoutManager = new GridLayoutManager(MainActivity.this.getApplicationContext(), calculateBestSpanCount(posterWidth));
+        recyclerView.setLayoutManager(gridLayoutManager);
+        recyclerView.addItemDecoration(new MyDividerItemDecoration(MainActivity.this, LinearLayoutManager.VERTICAL, 16));
+        recyclerView.setAdapter(mAdapter);
+        showRecycleView();
     }
     private int calculateBestSpanCount(int posterWidth) {
         Display display = getWindowManager().getDefaultDisplay();
@@ -245,5 +334,11 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         return Math.round(screenWidth / posterWidth);
     }
 
-
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if(selectedItem != null){
+            makeMovieSearchQuery(selectedItem);
+        }
+    }
 }
