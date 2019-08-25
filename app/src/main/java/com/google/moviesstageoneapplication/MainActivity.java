@@ -245,7 +245,31 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
         showRecycleView();
 
-        if(movieQuery.equals("favorites")){
+        if (movieQuery.equals("popular")) {
+            mSpinner.post(new Runnable() {
+                @Override
+                public void run() {
+                    mSpinner.setSelection(0);
+                }
+            });
+        }
+        else if (movieQuery.equals("top_rated")) {
+            mSpinner.post(new Runnable() {
+                @Override
+                public void run() {
+                    mSpinner.setSelection(1);
+                }
+            });
+        }
+
+
+         if(movieQuery.equals("favorites")){
+            mSpinner.post(new Runnable() {
+                @Override
+                public void run() {
+                    mSpinner.setSelection(2);
+                }
+            });
             favFlag = true;
             setMovieListFav();
         }else {
@@ -264,7 +288,18 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     @Override
     public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-         selectedItem = adapterView.getItemAtPosition(i).toString();
+
+        String checkLoc =  adapterView.getItemAtPosition(i).toString();
+
+        if (selectedItem!=null && selectedItem.equals(checkLoc)) {
+            selectedItem = adapterView.getItemAtPosition(i).toString();
+        }
+
+
+        else {
+            mListState = null;
+            selectedItem = adapterView.getItemAtPosition(i).toString();
+        }
 
         setTitle(selectedItem+" movies");
         makeMovieSearchQuery(selectedItem);
@@ -323,7 +358,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         }
     }
     private void showRecycle (){
-        int posterWidth = 500;
 
         mAdapter = new MoviesAdapter(MainActivity.this, movieList);
         mLayoutManager = new GridLayoutManager(this, 2);
